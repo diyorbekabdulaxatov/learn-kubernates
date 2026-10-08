@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: go-k8s-lab
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: go-k8s-lab
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: go-k8s-lab:v6
+          image: go-k8s-lab:v7
           imagePullPolicy: IfNotPresent
           env:
             - name: APP_MESSAGE
@@ -34,6 +34,9 @@ spec:
 
           ports:
             - containerPort: 8080
+          volumeMounts:
+            - name: data
+              mountPath: /data
           resources:
             requests:
               cpu: "100m"
@@ -60,6 +63,10 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 1
             failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: go-k8s-lab-data
 
 ---
 apiVersion: v1
