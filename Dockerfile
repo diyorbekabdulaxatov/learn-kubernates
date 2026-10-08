@@ -1,15 +1,14 @@
-FROM golang:1.25-alpine AS builder
+FROM golang:1.25 AS builder
 
 WORKDIR /app
 
-COPY . .
+COPY go.mod ./
+COPY main.go ./
 
-RUN go build -o main main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /server .
 
+FROM alpine:3.24
+COPY --from=builder /server /server
 
-FROM alpine:3.14
-
-WORKDIR /root/
-COPY --from=builder /app/main .
 EXPOSE 8080
-CMD [ "./main" ]
+ENTRYPOINT [ "/server" ]

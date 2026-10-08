@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-data:
-  company_name: "Diyorbek MCHJ"
-immutable: true
-metadata:
-  name: diyorbek-2001
