@@ -12,6 +12,17 @@ spec:
       labels:
         app: go-k8s-lab
     spec:
+      initContainers:
+        - name: wait-for-db
+          image: busybox:1.36
+          args: ["sh", "-c", "until nslookup db.default.svc.cluster.local; do echo db kutilmoqda; sleep 2; done"]
+        - name: visits-count
+          image: busybox:1.36
+          restartPolicy: Always
+          args: ["sh", "-c", "while true; do echo visits=$(cat /data/visits 2>/dev/null); sleep 5; done"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
       containers:
         - name: app
           image: go-k8s-lab:v7
@@ -31,7 +42,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-
           ports:
             - containerPort: 8080
           volumeMounts:
