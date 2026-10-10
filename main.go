@@ -59,7 +59,7 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]string{
 			"message": "Ruxsat berildi!",
 			"pod":     hostname,
-			"version": "v4",
+			"version": version,
 		})
 	})
 

@@ -9,6 +9,6 @@ spec:
       command: ["python", "-c", "a = bytearray(100*1024*1024); import time; time.sleep(3600)"]
       resources:
         requests:
-          memory: "100Gi"
+          memory: "20Mi"
         limits:
-          memory: "100Gi"
+          memory: "50Mi"
