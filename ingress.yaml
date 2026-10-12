@@ -15,3 +15,10 @@ spec:
                 name: go-k8s-lab
                 port:
                   number: 80
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: echo
+                port:
+                  number: 80
