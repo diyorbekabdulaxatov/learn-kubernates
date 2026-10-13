@@ -4,6 +4,10 @@ metadata:
   name: lab
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - lab.test
+      secretName: lab-test-tls
   rules:
     - host: lab.test
       http:
