@@ -23,3 +23,13 @@ spec:
     backendRefs:
     - name: echo
       port: 80
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+      headers:
+      - name: X-VERSION
+        value: v2
+    backendRefs:
+      - name: whoami
+        port: 80
