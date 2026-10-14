@@ -15,10 +15,6 @@ spec:
         value: /
     backendRefs:
     - name: go-k8s-lab
-      weight: 90
-      port: 80
-    - name: whoami
-      weight: 10
       port: 80
   - matches:
       - path:
