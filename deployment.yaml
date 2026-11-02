@@ -12,6 +12,8 @@ spec:
       labels:
         app: go-k8s-lab
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull
       containers:
         - name: app
           image: go-k8s-lab:v7
