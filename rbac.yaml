@@ -1,0 +1,47 @@
+# A limited identity for GitHub Actions: it can only update Deployments
+# in the go-lab namespace, nothing else in the cluster.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: github-deployer
+  namespace: go-lab
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deployer
+  namespace: go-lab
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: github-deployer
+  namespace: go-lab
+subjects:
+  - kind: ServiceAccount
+    name: github-deployer
+    namespace: go-lab
+roleRef:
+  kind: Role
+  name: deployer
+  apiGroup: rbac.authorization.k8s.io
+---
+# Long-lived token for the ServiceAccount (stored in GitHub as a secret).
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-deployer-token
+  namespace: go-lab
+  annotations:
+    kubernetes.io/service-account.name: github-deployer
+type: kubernetes.io/service-account-token

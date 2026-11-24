@@ -5,14 +5,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
-	"sync"
 	"time"
 )
 
 const version = "v7"
-
-var mu sync.Mutex
 
 func main() {
 	hostname, err := os.Hostname()
@@ -30,6 +26,18 @@ func main() {
 		log.Fatal("API_KEY is required")
 	}
 
+	server := &http.Server{
+		Addr:              ":8080",
+		Handler:           newMux(message, apiKey, hostname),
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+
+	log.Printf("server started on %s", server.Addr)
+	log.Fatal(server.ListenAndServe())
+}
+
+// newMux builds the HTTP routes. It lives outside main so tests can call it.
+func newMux(message, apiKey, hostname string) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -63,35 +71,5 @@ func main() {
 		})
 	})
 
-	mux.HandleFunc("/visits", func(w http.ResponseWriter, r *http.Request) {
-		mu.Lock()
-		defer mu.Unlock()
-
-		n := 0
-		if b, err := os.ReadFile("/data/visits"); err == nil {
-			n, _ = strconv.Atoi(string(b))
-		}
-		n++
-
-		if err := os.WriteFile("/data/visits", []byte(strconv.Itoa(n)), 0644); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]any{
-			"visits":  n,
-			"pod":     os.Getenv("POD_NAME"),
-			"version": version,
-		})
-	})
-
-	server := &http.Server{
-		Addr:              ":8080",
-		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
-	}
-
-	log.Printf("server started on %s", server.Addr)
-	log.Fatal(server.ListenAndServe())
+	return mux
 }
