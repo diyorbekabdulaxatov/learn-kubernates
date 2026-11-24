@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const version = "v7"
+const version = "v8"
 
 func main() {
 	hostname, err := os.Hostname()
