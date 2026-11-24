@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const version = "v6"
+const version = "v7"
 
 func main() {
 	hostname, err := os.Hostname()
@@ -26,6 +26,18 @@ func main() {
 		log.Fatal("API_KEY is required")
 	}
 
+	server := &http.Server{
+		Addr:              ":8080",
+		Handler:           newMux(message, apiKey, hostname),
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+
+	log.Printf("server started on %s", server.Addr)
+	log.Fatal(server.ListenAndServe())
+}
+
+// newMux builds the HTTP routes. It lives outside main so tests can call it.
+func newMux(message, apiKey, hostname string) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -55,16 +67,9 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]string{
 			"message": "Ruxsat berildi!",
 			"pod":     hostname,
-			"version": "v4",
+			"version": version,
 		})
 	})
 
-	server := &http.Server{
-		Addr:              ":8080",
-		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
-	}
-
-	log.Printf("server started on %s", server.Addr)
-	log.Fatal(server.ListenAndServe())
+	return mux
 }
